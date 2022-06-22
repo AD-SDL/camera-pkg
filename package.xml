@@ -4,7 +4,7 @@
   <name>rpl_cv_driver_pkg</name>
   <version>0.0.0</version>
   <description>Computer Vision for RPL lab</description>
-  <maintainer email="rory">Rory Butler</maintainer>
+  <maintainer email="rorymb@uchicago.edu">Rory Butler</maintainer>
   <license>MIT License</license>
 
   <test_depend>ament_copyright</test_depend>

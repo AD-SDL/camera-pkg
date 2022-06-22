@@ -11,7 +11,7 @@ with open('requirements.txt') as reqs:
         install_requires.append(req)
 
 
-##this is weird. 
+##this is weird.
 package_name = 'rpl_cv'
 
 setup(
@@ -26,12 +26,12 @@ setup(
     install_requires=install_requires,
     zip_safe=True,
     python_requires=">=3.8",
-    maintainer='Rory Buttler',
-    maintainer_email='rory@anl.gov',
+    maintainer='Rory Butler',
+    maintainer_email='rorymb@uchicago.edu',
     description='Driver for Computer Vision related tasks at RPL',
-    url='https://github.com/AD-SDL/rpl-camera-driver.git', 
+    url='https://github.com/AD-SDL/rpl-camera-driver.git',
     license='MIT License',
-    entry_points={ 
+    entry_points={
         'console_scripts': []
     },
     classifiers=[
