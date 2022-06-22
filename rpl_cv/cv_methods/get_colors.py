@@ -390,20 +390,3 @@ def get_colors(img):
         platesD[plate_idx+1] = wells
 
     return platesD
-
-def main():
-    import time
-    for i in range(2, 8):
-        img = cv2.imread(f'IMG_181{i}.png')
-        img = match_size(img, (1280, 1920))
-        s = time.time()
-        colors = get_colors(img)
-        e = time.time()
-        print(e-s)
-        # from pprint import pprint
-        # pprint(colors)
-        # print(colors[1]['A2'])
-    return
-
-if __name__ == '__main__':
-    main()
