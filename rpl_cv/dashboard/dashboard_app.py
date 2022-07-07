@@ -46,7 +46,7 @@ def read_bytes(sock, size):
         buf_list.append(packet)
     return b''.join(buf_list)
 
-def poll_socket(ip='', port=8080):
+def poll_socket(ip: str = '', port: int = 8080):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.bind((ip, port))
     sock.listen()
@@ -100,8 +100,10 @@ app = dash.Dash(__name__, server=server)
 
 @server.route('/video_feed')
 def video_feed():
-    return Response(gen(VideoCamera()),
-                    mimetype='multipart/x-mixed-replace; boundary=frame')
+    # return Response(gen(VideoCamera()),
+    #                 mimetype='multipart/x-mixed-replace; boundary=frame')
+    return Response(poll_socket(ip='130.202.148.70', port=8080),
+                        mimetype='multipart/x-mixed-replace; boundary=frame')
 
 app.layout = html.Div([
     html.H2("Web Camera Output"),
