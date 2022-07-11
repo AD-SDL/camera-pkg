@@ -31,7 +31,7 @@ class CameraSubscriber(Node):
     Create an CameraSubscriber class, which is a subclass of the Node class.
     """
 
-    def __init__(self, ip_conn='127.0.0.1', port=8080):
+    def __init__(self, ip_conn='127.0.0.1', port=9090):
         """
         Class constructor to set up the node
         """
@@ -48,8 +48,9 @@ class CameraSubscriber(Node):
         # Used to convert between ROS and OpenCV images
         self.br = CvBridge()
         self.i = 0
-
-        self.sock = socket.create_connection((ip, port))
+        self.ip = ip_conn
+        self.port = port
+        self.sock = socket.create_connection((ip_conn, port))
 
     def listener_callback(self, data):
         """
@@ -57,7 +58,7 @@ class CameraSubscriber(Node):
         """
         # Convert ROS Image message to OpenCV image
         current_frame = self.br.imgmsg_to_cv2(data)
-        self.get_logger().info('Received video frame %d' % self.i)
+        
         # Display image
         # cv2.imshow("camera", current_frame)
         # cv2.imwrite(f"Frame_{self.i}.jpg", current_frame)
@@ -65,6 +66,7 @@ class CameraSubscriber(Node):
 
         # Send image over socket connection
         self.send_frame(current_frame)
+        self.get_logger().info(f'Sent video frame {self.i} to {self.ip}:{self.port}')
 
         self.i += 1
 
@@ -92,10 +94,12 @@ def main(args=None):
     # Destroy the node explicitly
     # (optional - otherwise it will be done automatically
     # when the garbage collector destroys the node object)
+    image_subscriber.close_socket()
     image_subscriber.destroy_node()
 
     # Shutdown the ROS client library for Python
     rclpy.shutdown()
+
   
 if __name__ == '__main__':
     main()
