@@ -55,7 +55,7 @@ def poll_socket(sock_client, addr):
     try:
         while True:
             # Read the header
-            buffer += read_bytes(sock_client, header_size=len(buffer))
+            buffer += read_bytes(sock_client, header_size-len(buffer))
             # Split the header from the front of the buffer, preserve the rest of the buffer
             header, buffer = buffer[:header_size], buffer[header_size:]
             # Extract the message size from the header
@@ -100,7 +100,7 @@ def create_socket_connection(ip, port):
 
 server = Flask(__name__)
 app = dash.Dash(__name__, server=server)
-server.config['sock'], server.config['sock_client'], server.config['sock_addr'] = create_socket_connection(ip="127.0.0.1", port=9090)
+server.config['sock'], server.config['sock_client'], server.config['sock_addr'] = create_socket_connection(ip="127.0.0.1", port=9999)
 
 
 @server.route('/video_feed')
@@ -150,4 +150,4 @@ def display_color(mean, std):
 
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(debug=False)
