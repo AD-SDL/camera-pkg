@@ -31,7 +31,7 @@ class CameraSubscriber(Node):
     Create an CameraSubscriber class, which is a subclass of the Node class.
     """
 
-    def __init__(self, ip_conn='127.0.0.1', port=9090):
+    def __init__(self, ip_conn='127.0.0.1', port=9999):
         """
         Class constructor to set up the node
         """
