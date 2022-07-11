@@ -1,0 +1,4 @@
+#!/usr/bin/bash
+colcon build --packages-select py_pubsub
+. install/setup.bash
+echo "Finished building py_pubsub!"
