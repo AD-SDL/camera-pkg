@@ -13,13 +13,15 @@ setup(
     ],
     install_requires=['setuptools'],
     zip_safe=True,
-    maintainer='amaan',
+    maintainer='Amaan Khan',
     maintainer_email='amaanite@gmail.com',
-    description='TODO: Package description',
-    license='TODO: License declaration',
+    description='ROS Package for the Web Dashboard App in the RPL',
+    license='Apache Licence 2.0',
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
+            'talker = dashboard_pkg.publisher:main'
+            'listener = dashboard_pkg.subscriber:main',
         ],
     },
 )

@@ -14,7 +14,7 @@ class CameraSubscriber(Node):
             45
         )
         self.subscription   # prevent unused variable warning
-        self.i = 0;
+        self.i = 0
 
     def listener_callback(self, msg):
         self.get_logger().info("Received Frame %d" % self.i)

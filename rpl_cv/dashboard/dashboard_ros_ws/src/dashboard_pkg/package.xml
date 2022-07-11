@@ -3,9 +3,15 @@
 <package format="3">
   <name>dashboard_pkg</name>
   <version>0.0.0</version>
-  <description>TODO: Package description</description>
-  <maintainer email="amaanite@gmail.com">amaan</maintainer>
-  <license>TODO: License declaration</license>
+  <description>ROS Package for the Web Dashboard App in the RPL</description>
+  <maintainer email="amaanite@gmail.com">Amaan Khan</maintainer>
+  <license>Apache Licence 2.0</license>
+  <!-- <exec_depend>rclpy</exec_depend> -->
+  <depend>rclpy</depend>
+  <exec_depend>std_msgs</exec_depend>
+
+  <!--IDK if i need this line below, can remove later if doesn' work-->
+  <buildtool_depend>ament_python</buildtool_depend>  
 
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>
