@@ -150,4 +150,6 @@ def display_color(mean, std):
 
 
 if __name__ == '__main__':
-    app.run_server(debug=False)
+    # debug=True --> raises an error saying that connection is already in use
+    # debug=False OR (debug=True, use_reloader=False) work. Source: https://stackoverflow.com/a/66075333/7359915 
+    app.run_server(debug=True, use_reloader=False)
