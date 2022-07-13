@@ -5,7 +5,7 @@ import cv2
 import dash
 import numpy as np
 import plotly.express as px
-from dash import Dash, Input, Output, dcc, html
+from dash import Dash, Input, Output, State, dcc, html
 from flask import Flask, Response, current_app
 
 
@@ -130,7 +130,6 @@ def create_socket_connection(ip, port):
 
 server = Flask(__name__)  # server created to get video frames
 app = dash.Dash(__name__, server=server)
-
 (
     server.config["sock"],
     server.config["sock_client"],
@@ -152,6 +151,7 @@ def video_feed():
 
 app.layout = html.Div(
     [
+        # Camera Output
         html.H2("Web Camera Output"),
         html.Img(
             src="/video_feed",
@@ -165,6 +165,13 @@ app.layout = html.Div(
                 "display": "inline-block",
             },
         ),
+        # Button
+        html.Div(dcc.Input(id="input-on-submit", type="text")),
+        html.Button("Submit", id="submit-val", n_clicks=0),
+        html.Div(
+            id="container-button-basic", children="Enter a value and press submit"
+        ),
+        # Graph
         html.H2("Interactive normal distribution"),
         dcc.Graph(
             id="graph",
@@ -184,6 +191,17 @@ app.layout = html.Div(
         dcc.Slider(id="std", min=1, max=3, value=1, marks={1: "1", 3: "3"}),
     ]
 )
+
+
+@app.callback(
+    Output("container-button-basic", "children"),
+    Input("submit-val", "n_clicks"),
+    State("input-on-submit", "value"),
+)
+def button_on_click(n_clicks, value):
+    n_clicks
+
+    return f'Sent message {n_clicks} of " {value}"'
 
 
 @app.callback(Output("graph", "figure"), Input("mean", "value"), Input("std", "value"))
