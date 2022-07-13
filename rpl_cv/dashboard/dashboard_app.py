@@ -1,5 +1,6 @@
 import socket
 import struct
+from typing import Tuple
 
 import cv2
 import dash
@@ -58,7 +59,7 @@ def gen(camera):
 def read_bytes(sock, size):
     buf_list = []
     while sum(len(b) for b in buf_list) < size:
-        packet = sock.recv(4096)
+        packet = sock.recv(4096)   # receive data in chunks of 4096 bytes (4KB)
         if not packet:
             raise ConnectionError
         buf_list.append(packet)
@@ -114,8 +115,19 @@ def poll_socket(sock_client, addr):
         sock_client.close()
 
 
-def create_socket_connection(ip, port):
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+def create_socket_connection(ip: str, port: int) -> Tuple[object, object, str]:
+    """Establishes a socket connection w/ (ip, port). This dashboard app is the server
+       and it establishes it with the client.
+
+    Args:
+        ip (str): IP Address
+        port (int): Port
+
+    Returns:
+        Tuple: returns the sock, sock_client, and addr
+    """
+    # SOCK_STREAM = TCP Connection
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
     sock.bind((ip, port))
     sock.listen()
     print(f"Listening at ip:{ip} port:{port}")
@@ -135,6 +147,7 @@ app = dash.Dash(__name__, server=server)
     server.config["sock_client"],
     server.config["sock_addr"],
 ) = create_socket_connection(ip="127.0.0.1", port=9999)
+log_topic = "log_topic"
 
 
 @server.route("/video_feed")
@@ -199,8 +212,8 @@ app.layout = html.Div(
     State("input-on-submit", "value"),
 )
 def button_on_click(n_clicks, value):
-    n_clicks
-
+    msg = f"{log_topic}?{value}"
+    server.config['sock'].sendall(bytes(msg, 'utf-8'))
     return f'Sent message {n_clicks} of " {value}"'
 
 
@@ -214,4 +227,8 @@ def display_color(mean, std):
 if __name__ == "__main__":
     # debug=True --> raises an error saying that connection is already in use
     # debug=False OR (debug=True, use_reloader=False) work. Source: https://stackoverflow.com/a/66075333/7359915
-    app.run_server(debug=True, use_reloader=False)
+    try:
+        app.run_server(debug=True, use_reloader=False)
+    finally:
+        server.config['sock'].close()
+        print("Closed socket. Exiting...")
