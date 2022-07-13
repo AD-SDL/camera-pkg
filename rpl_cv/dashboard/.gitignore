@@ -1,6 +1,10 @@
 # Created by https://www.toptal.com/developers/gitignore/api/ros2,linux,python
 # Edit at https://www.toptal.com/developers/gitignore?templates=ros2,linux,python
 
+# Project Specific #
+_backup/
+dashboard_ros_ws/
+
 ### Linux ###
 *~
 

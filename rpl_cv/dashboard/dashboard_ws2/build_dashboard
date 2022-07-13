@@ -1,0 +1,4 @@
+#!/usr/bin/bash
+colcon build --packages-select dashboard
+. install/setup.bash
+echo "Finished building dashboard!"
