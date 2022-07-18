@@ -41,11 +41,13 @@ class DashMessagePublisher(Node):
         return b"".join(buf_list)
 
     def sock_listen(self):
+        print("entered sock_listen")
         header_size = struct.calcsize("Q")
         buffer = b""
 
         try:
             while True:
+                print("inside while loop")
                 buffer += self.read_bytes(header_size - len(buffer))
                 header, buffer = buffer[:header_size], buffer[header_size:]
                 data_size = struct.unpack("Q", header)[0]
