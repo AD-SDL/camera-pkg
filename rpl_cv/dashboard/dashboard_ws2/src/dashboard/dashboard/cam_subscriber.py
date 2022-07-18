@@ -9,10 +9,14 @@ from sensor_msgs.msg import Image  # Image is the message type
 from std_msgs.msg import String
 
 
+# Client
 class CameraSubscriber(Node):
     """
     CameraSubscriber is a node that subscribes to a topic, and publishes the frames
     that it receives from the topic to a socket connection.
+
+    CameraSubscriber is the client and the dashboard is the server in the socket 
+    server connection
     """
 
     def __init__(self, topic: str, ip_addr: str = "127.0.0.1", port: int = 9999):
@@ -81,16 +85,16 @@ def main(args=None):
     rclpy.init(args=args)
 
     # Create the node
-    image_subscriber = CameraSubscriber(topic="video_frames")
+    cam_subscriber = CameraSubscriber(topic="video_frames")
 
     # Spin the node so the callback function is called.
-    rclpy.spin(image_subscriber)
+    rclpy.spin(cam_subscriber)
 
     # Destroy the node explicitly
     # (optional - otherwise it will be done automatically
     # when the garbage collector destroys the node object)
-    image_subscriber.close_socket()
-    image_subscriber.destroy_node()
+    cam_subscriber.close_socket()
+    cam_subscriber.destroy_node()
 
     # Shutdown the ROS client library for Python
     rclpy.shutdown()

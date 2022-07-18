@@ -59,7 +59,7 @@ def gen(camera):
 def read_bytes(sock, size):
     buf_list = []
     while sum(len(b) for b in buf_list) < size:
-        packet = sock.recv(4096)   # receive data in chunks of 4096 bytes (4KB)
+        packet = sock.recv(4096)  # receive data in chunks of 4096 bytes (4KB)
         if not packet:
             raise ConnectionError
         buf_list.append(packet)
@@ -127,7 +127,7 @@ def create_socket_connection(ip: str, port: int) -> Tuple[object, object, str]:
         Tuple: returns the sock, sock_client, and addr
     """
     # SOCK_STREAM = TCP Connection
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.bind((ip, port))
     sock.listen()
     print(f"Listening at ip:{ip} port:{port}")
@@ -143,21 +143,32 @@ def create_socket_connection(ip: str, port: int) -> Tuple[object, object, str]:
 server = Flask(__name__)  # server created to get video frames
 app = dash.Dash(__name__, server=server)
 (
-    server.config["sock"],
-    server.config["sock_client"],
-    server.config["sock_addr"],
+    server.config["cam_sock"],
+    server.config["cam_sock_client"],
+    server.config["cam_sock_addr"],
 ) = create_socket_connection(ip="127.0.0.1", port=9999)
-log_topic = "log_topic"
+
+(
+    server.config["btn_sock"],
+    server.config["btn_sock_client"],
+    server.config["btn_sock_addr"],
+) = create_socket_connection(ip="127.0.0.1", port=9080)
+
+send_btn_topic = "dash_msg_topic"
 
 
 @server.route("/video_feed")
 def video_feed():
+    # region OLD METHOD
     # --- OLD method -- used when not receiving frames from ros topic/socket but instead just
     # getting the frames from camera directly
     # return Response(gen(VideoCamera()),
     #                 mimetype='multipart/x-mixed-replace; boundary=frame')
+    # endregion
     return Response(
-        poll_socket(current_app.config["sock_client"], current_app.config["sock_addr"]),
+        poll_socket(
+            current_app.config["cam_sock_client"], current_app.config["cam_sock_addr"]
+        ),
         mimetype="multipart/x-mixed-replace; boundary=frame",
     )
 
@@ -212,8 +223,10 @@ app.layout = html.Div(
     State("input-on-submit", "value"),
 )
 def button_on_click(n_clicks, value):
-    msg = f"{log_topic}?{value}"
-    server.config['sock'].sendall(bytes(msg, 'utf-8'))
+    msg = bytes(f"{send_btn_topic}?{value}", "utf-8")
+    header = struct.pack("Q", len(msg))
+
+    server.config["btn_sock"].sendall(header + msg)
     return f'Sent message {n_clicks} of " {value}"'
 
 
@@ -230,5 +243,6 @@ if __name__ == "__main__":
     try:
         app.run_server(debug=True, use_reloader=False)
     finally:
-        server.config['sock'].close()
+        server.config["cam_sock"].close()
+        server.config["btn_sock"].close()
         print("Closed socket. Exiting...")
