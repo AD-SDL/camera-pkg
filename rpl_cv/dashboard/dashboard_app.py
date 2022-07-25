@@ -154,7 +154,7 @@ app = dash.Dash(__name__, server=server)
     server.config["btn_sock_addr"],
 ) = create_socket_connection(ip="127.0.0.1", port=9080)
 
-send_btn_topic = "dash_msg_topic"
+send_btn_topic = "dash_msgs"
 
 
 @server.route("/video_feed")
@@ -223,11 +223,21 @@ app.layout = html.Div(
     State("input-on-submit", "value"),
 )
 def button_on_click(n_clicks, value):
-    msg = bytes(f"{send_btn_topic}?{value}", "utf-8")
-    header = struct.pack("Q", len(msg))
+    try:
+        msg = bytes(f"{send_btn_topic}?{value}", "utf-8")
+        header = struct.pack("Q", len(msg))
 
-    server.config["btn_sock"].sendall(header + msg)
-    return f'Sent message {n_clicks} of " {value}"'
+        server.config["btn_sock"].sendall(header + msg)  # ERROR!
+        return f'Sent message {n_clicks} of " {value}"'
+
+    except socket.error as e:
+        if isinstance(e.args, tuple) and e.args[1] == "Broken pipe":
+            (
+                server.config["btn_sock"],
+                server.config["btn_sock_client"],
+                server.config["btn_sock_addr"],
+            ) = create_socket_connection(ip="127.0.0.1", port=9080)
+            return "Got Broken Pipe Error"
 
 
 @app.callback(Output("graph", "figure"), Input("mean", "value"), Input("std", "value"))

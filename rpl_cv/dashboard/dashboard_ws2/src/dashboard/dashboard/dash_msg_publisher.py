@@ -1,3 +1,4 @@
+import select
 import socket
 import struct
 
@@ -28,7 +29,7 @@ class DashMessagePublisher(Node):
         self.addr = (ip_addr, port)
 
         self.sock = socket.create_connection((ip_addr, port))
-        self.sock_listen()
+        self.timeout = 0.1  # timeout in seconds
 
     def read_bytes(self, size):
         buf_list = []
@@ -40,41 +41,50 @@ class DashMessagePublisher(Node):
 
         return b"".join(buf_list)
 
-    def sock_listen(self):
-        print("entered sock_listen")
+    def sock_listen(self) -> bool:
         header_size = struct.calcsize("Q")
         buffer = b""
 
         try:
-            while True:
-                print("inside while loop")
-                buffer += self.read_bytes(header_size - len(buffer))
-                header, buffer = buffer[:header_size], buffer[header_size:]
-                data_size = struct.unpack("Q", header)[0]
+            ready = select.select([self.sock], [], [], self.timeout)
+            if not ready[0]:
+                return True  # nothing on the socket to be grabbed
 
-                # read the data
-                buffer += self.read_bytes(data_size - len(buffer))
+            buffer += self.read_bytes(header_size - len(buffer))
+            header, buffer = buffer[:header_size], buffer[header_size:]
+            data_size = struct.unpack("Q", header)[0]
 
-                # split the messsage from the front of the buffer, preserve the rest of the buffer
-                msg, buffer = buffer[:data_size], buffer[data_size:]
+            # read the data
+            buffer += self.read_bytes(data_size - len(buffer))
 
-                print(str(msg))  # just checking if it works
+            # split the messsage from the front of the buffer, preserve the rest of the buffer
+            msg, buffer = buffer[:data_size], buffer[data_size:]
 
-                # TODO: send msg to ros topic
+            print(str(msg))  # just checking if it works
+
+            # TODO: send msg to ros topic
 
         except ConnectionError:
             print("Lost connection from:", self.addr)
+            self.sock.close()
+            return False
         except KeyboardInterrupt:
             print("Got KeyboardInterrupt. Closing socket.")
-        finally:
             self.sock.close()
+            return False
+
+        return True
 
 
 def main(args=None):
     rclpy.init(args=args)
-
     msg_publisher = DashMessagePublisher(topic="dash_msgs")
-    rclpy.spin(msg_publisher)
+
+    while True:
+        if not msg_publisher.sock_listen():
+            print("Failed to listen for messages. Exiting.")
+            break
+        rclpy.spin_once(msg_publisher, timeout_sec=0.1)
 
     msg_publisher.destroy_node()
     rclpy.shutdown()
