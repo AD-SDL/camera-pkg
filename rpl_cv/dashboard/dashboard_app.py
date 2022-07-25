@@ -256,3 +256,5 @@ if __name__ == "__main__":
         server.config["cam_sock"].close()
         server.config["btn_sock"].close()
         print("Closed socket. Exiting...")
+
+    # test change
