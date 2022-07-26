@@ -1,13 +1,14 @@
 import select
 import socket
 import struct
+from typing import Tuple
 
 import rclpy  # Python Client Library for ROS 2
 from rclpy.node import Node  # Handles the creation of nodes
 from std_msgs.msg import String
 
 
-# Client
+# SERVER
 class DashMessagePublisher(Node):
     """Establishes connection with Flask Dashboard App with a socket connection.
     It receives messages from the socket connection and it then publishes these
@@ -18,23 +19,24 @@ class DashMessagePublisher(Node):
         Node (rply.node.Node): ROS Node parent class
     """
 
-    def __init__(self, topic, ip_addr: str = "127.0.0.1", port=9080):
+    def __init__(self, topic, sock_client):
         super().__init__("dash_msg_publisher")
 
         self.publisher = self.create_publisher(String, topic, 10)
         self.topic = topic
 
-        self.ip = ip_addr
-        self.port = port
-        self.addr = (ip_addr, port)
+        # self.ip = ip_addr
+        # self.port = port
+        # self.addr = (ip_addr, port)
+        self.sock_client = sock_client
 
-        self.sock = socket.create_connection((ip_addr, port))
+        # self.sock = socket.create_connection((ip_addr, port))
         self.timeout = 0.1  # timeout in seconds
 
     def read_bytes(self, size):
         buf_list = []
         while sum(len(b) for b in buf_list) < size:
-            packet = self.sock.recv(4096)  # receive data in chunks of 4096 bytes
+            packet = self.sock_client.recv(4096)  # receive data in chunks of 4096 bytes
             if not packet:
                 raise ConnectionError
             buf_list.append(packet)
@@ -46,7 +48,7 @@ class DashMessagePublisher(Node):
         buffer = b""
 
         try:
-            ready = select.select([self.sock], [], [], self.timeout)
+            ready = select.select([self.sock_client], [], [], self.timeout)
             if not ready[0]:
                 return True  # nothing on the socket to be grabbed
 
@@ -66,19 +68,45 @@ class DashMessagePublisher(Node):
 
         except ConnectionError:
             print("Lost connection from:", self.addr)
-            self.sock.close()
+            self.sock_client.close()
             return False
         except KeyboardInterrupt:
             print("Got KeyboardInterrupt. Closing socket.")
-            self.sock.close()
+            self.sock_client.close()
             return False
 
         return True
 
+def create_socket_connection(ip: str, port: int) -> Tuple[object, object, str]:
+    """Establishes a socket connection w/ (ip, port). This dashboard app is the server
+       and it establishes it with the client.
+
+    Args:
+        ip (str): IP Address
+        port (int): Port
+
+    Returns:
+        Tuple: returns the sock, sock_client, and addr
+    """
+    # SOCK_STREAM = TCP Connection
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.bind((ip, port))
+    sock.listen()
+    print(f"Listening at ip:{ip} port:{port}")
+
+    sock_client, addr = sock.accept()
+    if not sock_client:
+        return
+    print(f"Got connection from: {addr}")
+
+    return sock, sock_client, addr
 
 def main(args=None):
+    sock, sock_client, addr = create_socket_connection(ip="127.0.0.1", port = 9080)
+    ros_topic = "dash_msgs"
     rclpy.init(args=args)
-    msg_publisher = DashMessagePublisher(topic="dash_msgs")
+
+    msg_publisher = DashMessagePublisher(ros_topic, sock_client)
 
     while True:
         if not msg_publisher.sock_listen():

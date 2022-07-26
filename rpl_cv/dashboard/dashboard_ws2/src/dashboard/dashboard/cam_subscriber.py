@@ -15,7 +15,7 @@ class CameraSubscriber(Node):
     CameraSubscriber is a node that subscribes to a topic, and publishes the frames
     that it receives from the topic to a socket connection.
 
-    CameraSubscriber is the client and the dashboard is the server in the socket 
+    CameraSubscriber is the client and the dashboard is the server in the socket
     server connection
     """
 

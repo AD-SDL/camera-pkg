@@ -140,31 +140,24 @@ def create_socket_connection(ip: str, port: int) -> Tuple[object, object, str]:
     return sock, sock_client, addr
 
 
+def connect_socket_as_client(ip, port):
+    return socket.create_connection((ip, port))  # returns the server sock
+
+
 server = Flask(__name__)  # server created to get video frames
 app = dash.Dash(__name__, server=server)
+server.config["btn_sock"] = connect_socket_as_client(ip="127.0.0.1", port=9080)
+
 (
     server.config["cam_sock"],
     server.config["cam_sock_client"],
     server.config["cam_sock_addr"],
 ) = create_socket_connection(ip="127.0.0.1", port=9999)
-
-(
-    server.config["btn_sock"],
-    server.config["btn_sock_client"],
-    server.config["btn_sock_addr"],
-) = create_socket_connection(ip="127.0.0.1", port=9080)
-
 send_btn_topic = "dash_msgs"
 
 
 @server.route("/video_feed")
 def video_feed():
-    # region OLD METHOD
-    # --- OLD method -- used when not receiving frames from ros topic/socket but instead just
-    # getting the frames from camera directly
-    # return Response(gen(VideoCamera()),
-    #                 mimetype='multipart/x-mixed-replace; boundary=frame')
-    # endregion
     return Response(
         poll_socket(
             current_app.config["cam_sock_client"], current_app.config["cam_sock_addr"]
@@ -223,21 +216,21 @@ app.layout = html.Div(
     State("input-on-submit", "value"),
 )
 def button_on_click(n_clicks, value):
-    try:
-        msg = bytes(f"{send_btn_topic}?{value}", "utf-8")
-        header = struct.pack("Q", len(msg))
+    # try:
+    msg = bytes(f"{send_btn_topic}?{value}", "utf-8")
+    header = struct.pack("Q", len(msg))
 
-        server.config["btn_sock"].sendall(header + msg)  # ERROR!
-        return f'Sent message {n_clicks} of " {value}"'
+    server.config["btn_sock"].sendall(header + msg)  # ERROR!
+    return f'Sent message {n_clicks} of " {value}"'
 
-    except socket.error as e:
-        if isinstance(e.args, tuple) and e.args[1] == "Broken pipe":
-            (
-                server.config["btn_sock"],
-                server.config["btn_sock_client"],
-                server.config["btn_sock_addr"],
-            ) = create_socket_connection(ip="127.0.0.1", port=9080)
-            return "Got Broken Pipe Error"
+    # except socket.error as e:
+    #     if isinstance(e.args, tuple) and e.args[1] == "Broken pipe":
+    #         (
+    #             server.config["btn_sock"],
+    #             server.config["btn_sock_client"],
+    #             server.config["btn_sock_addr"],
+    #         ) = create_socket_connection(ip="127.0.0.1", port=9080)
+    #         return "Got Broken Pipe Error"
 
 
 @app.callback(Output("graph", "figure"), Input("mean", "value"), Input("std", "value"))
@@ -256,5 +249,3 @@ if __name__ == "__main__":
         server.config["cam_sock"].close()
         server.config["btn_sock"].close()
         print("Closed socket. Exiting...")
-
-    # test change
