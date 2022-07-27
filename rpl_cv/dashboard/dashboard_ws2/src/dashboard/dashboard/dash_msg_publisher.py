@@ -60,11 +60,14 @@ class DashMessagePublisher(Node):
             buffer += self.read_bytes(data_size - len(buffer))
 
             # split the messsage from the front of the buffer, preserve the rest of the buffer
-            msg, buffer = buffer[:data_size], buffer[data_size:]
+            socket_message, buffer = buffer[:data_size], buffer[data_size:]
+            message = String()
+            message.data = str(socket_message)
 
-            print(str(msg))  # just checking if it works
-
-            # TODO: send msg to ros topic
+            self.publisher.publish(message)
+            print(
+                "Published Message: %s" % str(socket_message)
+            )  # just checking if it works
 
         except ConnectionError:
             print("Lost connection from:", self.addr)
@@ -76,6 +79,7 @@ class DashMessagePublisher(Node):
             return False
 
         return True
+
 
 def create_socket_connection(ip: str, port: int) -> Tuple[object, object, str]:
     """Establishes a socket connection w/ (ip, port). This dashboard app is the server
@@ -101,8 +105,9 @@ def create_socket_connection(ip: str, port: int) -> Tuple[object, object, str]:
 
     return sock, sock_client, addr
 
+
 def main(args=None):
-    sock, sock_client, addr = create_socket_connection(ip="127.0.0.1", port = 9080)
+    sock, sock_client, addr = create_socket_connection(ip="127.0.0.1", port=9080)
     ros_topic = "dash_msgs"
     rclpy.init(args=args)
 
