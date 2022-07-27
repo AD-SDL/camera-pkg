@@ -1,11 +1,12 @@
 import socket
 import struct
+from typing import Tuple
 
 import cv2
 import dash
 import numpy as np
 import plotly.express as px
-from dash import Dash, Input, Output, dcc, html
+from dash import Dash, Input, Output, State, dcc, html
 from flask import Flask, Response, current_app
 
 
@@ -58,7 +59,7 @@ def gen(camera):
 def read_bytes(sock, size):
     buf_list = []
     while sum(len(b) for b in buf_list) < size:
-        packet = sock.recv(4096)
+        packet = sock.recv(4096)  # receive data in chunks of 4096 bytes (4KB)
         if not packet:
             raise ConnectionError
         buf_list.append(packet)
@@ -114,7 +115,18 @@ def poll_socket(sock_client, addr):
         sock_client.close()
 
 
-def create_socket_connection(ip, port):
+def create_socket_connection(ip: str, port: int) -> Tuple[object, object, str]:
+    """Establishes a socket connection w/ (ip, port). This dashboard app is the server
+       and it establishes it with the client.
+
+    Args:
+        ip (str): IP Address
+        port (int): Port
+
+    Returns:
+        Tuple: returns the sock, sock_client, and addr
+    """
+    # SOCK_STREAM = TCP Connection
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.bind((ip, port))
     sock.listen()
@@ -128,30 +140,35 @@ def create_socket_connection(ip, port):
     return sock, sock_client, addr
 
 
+def connect_socket_as_client(ip, port):
+    return socket.create_connection((ip, port))  # returns the server sock
+
+
 server = Flask(__name__)  # server created to get video frames
 app = dash.Dash(__name__, server=server)
+server.config["btn_sock"] = connect_socket_as_client(ip="127.0.0.1", port=9080)
 
 (
-    server.config["sock"],
-    server.config["sock_client"],
-    server.config["sock_addr"],
+    server.config["cam_sock"],
+    server.config["cam_sock_client"],
+    server.config["cam_sock_addr"],
 ) = create_socket_connection(ip="127.0.0.1", port=9999)
+send_btn_topic = "dash_msgs"
 
 
 @server.route("/video_feed")
 def video_feed():
-    # --- OLD method -- used when not receiving frames from ros topic/socket but instead just
-    # getting the frames from camera directly
-    # return Response(gen(VideoCamera()),
-    #                 mimetype='multipart/x-mixed-replace; boundary=frame')
     return Response(
-        poll_socket(current_app.config["sock_client"], current_app.config["sock_addr"]),
+        poll_socket(
+            current_app.config["cam_sock_client"], current_app.config["cam_sock_addr"]
+        ),
         mimetype="multipart/x-mixed-replace; boundary=frame",
     )
 
 
 app.layout = html.Div(
     [
+        # Camera Output
         html.H2("Web Camera Output"),
         html.Img(
             src="/video_feed",
@@ -165,6 +182,13 @@ app.layout = html.Div(
                 "display": "inline-block",
             },
         ),
+        # Button
+        html.Div(dcc.Input(id="input-on-submit", type="text")),
+        html.Button("Submit", id="submit-val", n_clicks=0),
+        html.Div(
+            id="container-button-basic", children="Enter a value and press submit"
+        ),
+        # Graph
         html.H2("Interactive normal distribution"),
         dcc.Graph(
             id="graph",
@@ -186,6 +210,20 @@ app.layout = html.Div(
 )
 
 
+@app.callback(
+    Output("container-button-basic", "children"),
+    Input("submit-val", "n_clicks"),
+    State("input-on-submit", "value"),
+)
+def button_on_click(n_clicks, value):
+    # msg = bytes(f"{send_btn_topic}?{value}", "utf-8")
+    msg = bytes(str(value), "utf-8")
+    header = struct.pack("Q", len(msg))
+
+    server.config["btn_sock"].sendall(header + msg)  # ERROR!
+    return f'Sent message {n_clicks} of " {value}"'
+
+
 @app.callback(Output("graph", "figure"), Input("mean", "value"), Input("std", "value"))
 def display_color(mean, std):
     data = np.random.normal(mean, std, size=500)  # replace with your own data source
@@ -196,4 +234,9 @@ def display_color(mean, std):
 if __name__ == "__main__":
     # debug=True --> raises an error saying that connection is already in use
     # debug=False OR (debug=True, use_reloader=False) work. Source: https://stackoverflow.com/a/66075333/7359915
-    app.run_server(debug=True, use_reloader=False)
+    try:
+        app.run_server(debug=True, use_reloader=False)
+    finally:
+        server.config["cam_sock"].close()
+        server.config["btn_sock"].close()
+        print("Closed socket. Exiting...")
