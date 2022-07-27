@@ -216,21 +216,12 @@ app.layout = html.Div(
     State("input-on-submit", "value"),
 )
 def button_on_click(n_clicks, value):
-    # try:
-    msg = bytes(f"{send_btn_topic}?{value}", "utf-8")
+    # msg = bytes(f"{send_btn_topic}?{value}", "utf-8")
+    msg = bytes(str(value), "utf-8")
     header = struct.pack("Q", len(msg))
 
     server.config["btn_sock"].sendall(header + msg)  # ERROR!
     return f'Sent message {n_clicks} of " {value}"'
-
-    # except socket.error as e:
-    #     if isinstance(e.args, tuple) and e.args[1] == "Broken pipe":
-    #         (
-    #             server.config["btn_sock"],
-    #             server.config["btn_sock_client"],
-    #             server.config["btn_sock_addr"],
-    #         ) = create_socket_connection(ip="127.0.0.1", port=9080)
-    #         return "Got Broken Pipe Error"
 
 
 @app.callback(Output("graph", "figure"), Input("mean", "value"), Input("std", "value"))
