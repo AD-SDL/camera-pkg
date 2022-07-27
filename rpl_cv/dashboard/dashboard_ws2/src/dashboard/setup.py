@@ -22,6 +22,7 @@ setup(
             "cam_pub = dashboard.cam_publisher:main",
             "cam_sub = dashboard.cam_subscriber:main",
             "msg_pub = dashboard.dash_msg_publisher:main",
+            "msg_sub = dashboard.dash_msg_subscriber:main",
         ],
     },
 )
