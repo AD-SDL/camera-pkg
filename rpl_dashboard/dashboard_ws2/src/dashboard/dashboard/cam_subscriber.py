@@ -6,7 +6,6 @@ import rclpy  # Python library for ROS 2
 from cv_bridge import CvBridge  # Package to convert between ROS and OpenCV Images
 from rclpy.node import Node  # Handles the creation of nodes
 from sensor_msgs.msg import Image  # Image is the message type
-from std_msgs.msg import String
 
 
 # Client
@@ -51,11 +50,6 @@ class CameraSubscriber(Node):
         """
         # Convert ROS Image message to OpenCV image
         current_frame = self.br.imgmsg_to_cv2(data)
-
-        # Display image ---> not displaying the images here since we are sending over socket connection
-        # cv2.imshow("camera", current_frame)
-        # cv2.imwrite(f"Frame_{self.i}.jpg", current_frame)
-        # cv2.waitKey(1)
 
         # Send image over socket connection
         self._send_frame(current_frame)

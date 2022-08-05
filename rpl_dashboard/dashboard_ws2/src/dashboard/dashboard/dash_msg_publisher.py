@@ -25,12 +25,7 @@ class DashMessagePublisher(Node):
         self.publisher = self.create_publisher(String, topic, 10)
         self.topic = topic
 
-        # self.ip = ip_addr
-        # self.port = port
-        # self.addr = (ip_addr, port)
         self.sock_client = sock_client
-
-        # self.sock = socket.create_connection((ip_addr, port))
         self.timeout = 0.1  # timeout in seconds
 
     def read_bytes(self, size):
@@ -82,8 +77,7 @@ class DashMessagePublisher(Node):
 
 
 def create_socket_connection(ip: str, port: int) -> Tuple[object, object, str]:
-    """Establishes a socket connection w/ (ip, port). This dashboard app is the server
-       and it establishes it with the client.
+    """Establishes a socket connection w/ (ip, port).
 
     Args:
         ip (str): IP Address

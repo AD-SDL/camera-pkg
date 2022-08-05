@@ -97,8 +97,6 @@ def poll_socket(sock_client, addr):
 
             # Split the message from the front of the buffer, preserve the rest of the buffer
             img_raw, buffer = buffer[:data_size], buffer[data_size:]
-            # Decode the message into an image --- not decoding jpeg compressed img to opencv image so not needed
-            # img = cv2.imdecode(np.frombuffer(img_raw, np.byte), cv2.IMREAD_ANYCOLOR)
 
             yield (
                 b"--frame\r\n"
@@ -216,7 +214,6 @@ app.layout = html.Div(
     State("input-on-submit", "value"),
 )
 def button_on_click(n_clicks, value):
-    # msg = bytes(f"{send_btn_topic}?{value}", "utf-8")
     msg = bytes(str(value), "utf-8")
     header = struct.pack("Q", len(msg))
 
