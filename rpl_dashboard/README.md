@@ -1,5 +1,13 @@
 # Robotics Dashboard Web App for Laboratory Monitoring
 
+## Directory and File Information
+* This project requires ROS 2 Foxy, Python 3.8.10, OpenCV, Flask, plotly.dash, numpy
+* Folder `dashboard_ws2` is a ROS workspace, and the ROS package name for this workspace is `dashboard` which can be 
+found under `dashboard_ws2/src/dashboard/`
+* All the python modules that I wrote that run on the Intel NUC are under `dashboard_ws2/src/dashboard/dashboard/*`
+* The Flask app is under this current parent directory and is named `dashboard_app.py`
+* To build the ROS workspace and all its packages, run the bash script `dashboard_ws2/build_dashboard` as such: 
+`source dasbhoard_ws2/build_dashboard`
 
 ## How to run application
 First `cd` into `dashboard_ws2` directory and run 
