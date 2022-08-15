@@ -1,11 +1,11 @@
 import cv2
 import numpy as np
+
 from ...core.convenience import debug_show, rotate
 from ...core.coord import from_homogeneous, to_homogeneous
 from ...core.fiducial import draw_fiducials, find_fiducials
 
-DEBUG = 2
-
+DEBUG = 0
 
 def match_size(img, shape):
     min_img = min(img.shape[:2])
@@ -356,7 +356,10 @@ def proximity_to_center(img, plate):
 
     return np.linalg.norm([dx, dy])
 
-def get_colors(img):
+def get_colors(img, dbg=0):
+    global DEBUG
+    DEBUG = dbg
+
     # Find the orientation of the image
     orientation = orient(img)
     # Rotate the plates to be mostly lined up with the image axes

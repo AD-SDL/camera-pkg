@@ -30,4 +30,4 @@ def draw_fiducials(img, corners, ids):
 
     rvecs, tvecs, _ = cv2.aruco.estimatePoseSingleMarkers(corners, 0.1, cameraMatrix, distCoeffs)
     for rvec, tvec in zip(rvecs, tvecs):
-        cv2.aruco.drawAxis(img, cameraMatrix, distCoeffs, rvec, tvec, 0.05)
+        cv2.drawFrameAxes(img, cameraMatrix, distCoeffs, rvec, tvec, 0.05)

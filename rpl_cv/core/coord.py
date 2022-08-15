@@ -2,7 +2,7 @@ import numpy as np
 
 
 def to_homogeneous(pts):
-    shape = pts.shape
+    shape = list(pts.shape)
     shape[-1] += 1
 
     out_pts = np.ones(shape)
