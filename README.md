@@ -8,9 +8,31 @@ The rpl_cv/ directory contains a Python package with robot-specific methods and 
 
 ### Installation
 
+For a typical install:
+
+    git clone https://github.com/AD-SDL/rpl-camera-vision.git
+    cd rpl-camera-vision
+    pip install .
+
+For development:
+
     git clone https://github.com/AD-SDL/rpl-camera-vision.git
     cd rpl-camera-vision
     pip install -e .
+
+To uninstall:
+
+    pip uninstall rpl_cv
+
+Troubleshooting:
+
+Sometimes one package will require opencv-python while another requires opencv-contrib-python. Both cannot be installed at the same time. The easiest solution is to tell the package manager to ignore the conflict, then fix it manually in post. The following commands should handle nearly all situations.
+
+    pip uninstall opencv-python
+    pip uninstall opencv-contrib-python
+    pip install opencv-contrib-python
+
+Because opencv-contrib-python is a superset of opencv-python, it can satisfy all opencv-python requirements (even if the package manager cannot figure this out).
 
 ### Features
 
