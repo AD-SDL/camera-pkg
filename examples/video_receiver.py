@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
-from ..core.fiducial import draw_fiducials, find_fiducials
-from ..core.network import simple_video_receiver
+from rpl_cv.core.fiducial import draw_fiducials, find_fiducials
+from rpl_cv.core.network import simple_video_receiver
 
 
 def find_pipette_region(img, corners, draw=None):
