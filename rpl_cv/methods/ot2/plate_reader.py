@@ -1,8 +1,8 @@
 import cv2
 import numpy as np
-from utils.convenience import debug_show, rotate
-from utils.coords import from_homogeneous, to_homogeneous
-from utils.fiducials import draw_fiducials, find_fiducials
+from ...core.convenience import debug_show, rotate
+from ...core.coord import from_homogeneous, to_homogeneous
+from ...core.fiducial import draw_fiducials, find_fiducials
 
 DEBUG = 2
 
