@@ -17,8 +17,7 @@ def draw_fiducials(img, corners, ids):
     if len(corners) <= 0:
         return
 
-    # TODO: img = necessary here?
-    img = cv2.aruco.drawDetectedMarkers(img, corners, ids)
+    cv2.aruco.drawDetectedMarkers(img, corners, ids)
 
     # Made by hand. Should be calculated by calibration for better results
     cameraMatrix = np.array([
