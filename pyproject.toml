@@ -1,0 +1,51 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rpl_cv"
+version = "0.0.1"
+description = "Package for CV related tasks at RPL"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {file = "LICENSE"}
+authors = [
+    {name = "Rory Butler", email = "rorymb@uchicago.edu"},
+]
+keywords = []
+classifiers = [
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: POSIX",
+    "Operating System :: MacOS :: MacOS X",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+]
+dependencies = [
+    "opencv-contrib-python",
+    "numpy",
+]
+
+[project.urls]
+repository = "https://github.com/AD-SDL/rpl-camera-vision"
+
+# [project.scripts]
+# cli-name = "rpl_cv.module:func"
+
+# [tool.setuptools]
+# packages = ["rpl_cv"]
+
+[tool.setuptools.packages.find]
+include = ["rpl_cv*"]
+# # This seems to be slightly more robust to nested packages
+
+# [tool.setuptools.package-data]
+# rpl_cv = ["*.png"]
+# "*" = ["*.txt"]
+# # Data files must be specified here or via the MANIFEST.in file
+
+# # Access data through the methods described
+# # https://setuptools.pypa.io/en/latest/userguide/datafiles.html#accessing-data-files-at-runtime
