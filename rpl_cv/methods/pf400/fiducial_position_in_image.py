@@ -33,7 +33,7 @@ def main():
 
     rv, img = cap.read()
 
-    pts = fiducial_position_in_image(img)
+    pts = fiducial_position(img)
 
     print(pts)
 
