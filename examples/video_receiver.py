@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import cv2
 import numpy as np
 from rpl_cv.core.fiducial import draw_fiducials, find_fiducials

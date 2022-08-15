@@ -40,7 +40,14 @@ Because opencv-contrib-python is a superset of opencv-python, it can satisfy all
 
 ### Examples
 
-    Todo
+This example shows how to read well colors from plates on the OT-2. This example can be modified for extra debug-style output by changing `get_colors(img, dbg=0)` to `get_colors(img, dbg=2)`.
+
+    python examples/plate_read_colors.py
+
+This example requires two programs to be run simultaneously, and shows how to quickly set up a camera stream between two machines on the same network, where one machine performs a custom operation on the received images.
+
+    python examples/video_receiver.py
+    python examples/video_sender.py
 
 ## yolo
 
