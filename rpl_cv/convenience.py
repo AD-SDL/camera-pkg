@@ -5,15 +5,6 @@ from utils.features import find_homography
 
 
 def debug_show(img):
-    # Why does such a simple function exist?
-    # - Removes the need to remember imshow argument order
-    # - Removes the need to remember if it is:
-    #          imshow vs imShow
-    #     and waitkey vs waitKey
-    # - One line instead of two, so less visual clutter
-    # These functions can be added, commented out, and
-    #     moved around very frequently when debugging, so
-    #     the time savings eventually add up.
     cv2.imshow('', img)
     cv2.waitKey(0)
 
